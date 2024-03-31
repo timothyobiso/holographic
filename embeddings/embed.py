@@ -1,24 +1,37 @@
 from typing import List, Dict
 from tqdm import tqdm
 import pickle
+from utils import *
 
 from torch import nn
 import torch
-from torch.fft import rfft, irfft
-import numpy as np
+
 
 class CorrelationInstructions:
     def __init__(self, instructions: List[int]):
-        self.instructions = instructions # [space, space, ...]
+        self.instructions = instructions  # [space, space, ...]
 
     def __iter__(self):
         return iter(self.instructions)
 
-def conv(a, b):
-    return irfft(np.multiply(rfft(a), rfft(b)))
-
-def corr(a, b):
-    return irfft(np.multiply(np.conj(rfft(a)), rfft(b)))
+def childless_siblings(g: penman.Graph):
+    siblings = {}
+    names = {}
+    childless = set()
+    has_children = set()
+    for parent, relation, child in g.triples:
+        if relation == ":instance":
+            names[parent] = child
+            continue
+        if parent in siblings:
+            siblings[parent].append((relation, child))
+        else:
+            siblings[parent] = [(relation, child)]
+        childless.add(child)
+        has_children.add(parent)
+        if parent in childless:
+            childless.remove(parent)
+    return childless, siblings, names
 
 
 class HolographicWordEmbedding:
@@ -32,21 +45,27 @@ class HolographicWordEmbedding:
 
     def embed(self, instructions: CorrelationInstructions = None):
         raise NotImplementedError("Embedding must be implemented in subclass")
-class EmbeddingSet:
-    def __init__(self, sources, strategy, binder="conv", vocab_index=0, max_vocab=-1):
 
-        self.embeddings: Dict[HolographicWordEmbedding] = {}
-        self.strategy = strategy
-        self.binder = binder
-        self.sources = sources
-        self.stoi = self.sources[vocab_index].stoi
-        self.itos = self.sources[vocab_index].itos
+
+class EmbeddingSet:
+    def __init__(self, sources=None, strategy=None, binder="conv", vocab_index=0, max_vocab=-1, embeddings=None):
+        if embeddings is not None:
+            self.embeddings = embeddings
+            self.stoi = {k: i for i, k in enumerate(embeddings.keys())}
+            self.itos = list(embeddings.keys())
+        else:
+            self.embeddings: Dict[HolographicWordEmbedding] = {}
+            self.strategy = strategy
+            self.sources = sources
+            self.stoi = self.sources[vocab_index].stoi
+            self.itos = self.sources[vocab_index].itos
+            for e in tqdm(self.itos, desc="Creating Embedding Set"):
+                self.embeddings[e] = self.strategy([s[e] for s in sources], binder)
+
         if max_vocab != -1:
             self.itos = self.itos[:max_vocab]
+        self.binder = binder
 
-
-        for e in tqdm(self.itos, desc="Creating Embedding Set"):
-            self.embeddings[e] = self.strategy([s[e] for s in sources], binder)
 
     def embed_set(self, instructions: CorrelationInstructions = None):
         for e in tqdm(self.itos, desc="Embedding..."):
@@ -60,9 +79,18 @@ class EmbeddingSet:
     def pickle_embeddings(self, outfile):
         torch.save(self.embeddings, outfile)
 
+
+
+    @classmethod
+    def from_embeddings(cls, embeddings, binder="conv"):
+        return cls(embeddings=embeddings, binder=binder)
+
 class HolographicSentenceEmbedding:
-    def __init__(self, amr, binder="conv"):
-        self.embedding = torch.zeros_like()
+    def __init__(self, amr, binder="conv", length=300, dim=1):
+        if dim == 1:
+            self.embedding = torch.zeros((dim,length))
+        else:
+            self.embedding = torch.zeros(length)
         self.amr = amr
         if binder == "conv":
             self.bind = conv
@@ -71,6 +99,7 @@ class HolographicSentenceEmbedding:
 
     def embed(self, embedding: EmbeddingSet):
         raise NotImplementedError("Embedding must be implemented in subclass")
+
 
 class RecursiveEmbedding(HolographicWordEmbedding):
     def __init__(self, sources, binder):
@@ -161,22 +190,36 @@ class SequenceEmbedding(HolographicWordEmbedding):
         return self.embedding
 
 
+# TODO: deal with reentrant nodes
 class FullyNested(HolographicSentenceEmbedding):
     def __init__(self, amr, binder="conv"):
         super().__init__(amr, binder)
 
     def embed(self, embeddings: EmbeddingSet):
-        # go through amr, bind relation to child, then bundle siblings, then work up to top
-        # TODO
-        pass
+        # childless, siblings, names = childless_siblings(self.amr)
+        def _embed(rel, top):
+            if has_children(self.amr, top):
+                return self.bind(embeddings.embeddings[top].embedding,
+                                 np.sum([_embed(r, c) for r, c in children(self.amr, top)], axis=0))
+            return self.bind(embeddings.embeddings[rel].embedding, embeddings.embeddings[top].embedding)
+
+        self.embedding = _embed(":snt", self.amr.top)
+
 
 class VerbFrame(HolographicSentenceEmbedding):
     def __init__(self, amr, binder="conv"):
         super().__init__(amr, binder)
 
     def embed(self, embeddings: EmbeddingSet):
-        # TODO
-        pass
+        # same as fully nested, and bundle with any verb frames
+        def _embed(rel, top):
+            if has_children(self.amr, top):
+                return self.bind(embeddings.embeddings[top].embedding,
+                                 np.sum([_embed(r, c) for r, c in children(self.amr, top)], axis=0))
+            return self.bind(embeddings.embeddings[rel].embedding, embeddings.embeddings[top].embedding)
+
+        verbs = [v for v in self.amr.nodes if v.is_verb()]
+        self.embedding = np.sum([_embed(":snt", self.amr.top)] + [_embed(v) for v in verbs], axis=0)
 
 class PseudoLinearized(HolographicSentenceEmbedding):
     def __init__(self, amr, binder="conv"):
@@ -228,5 +271,3 @@ class SubgraphEncoding(HolographicSentenceEmbedding):
     def embed(self, embeddings: EmbeddingSet):
         # TODO
         pass
-
-

@@ -1,6 +1,6 @@
-from embed import EmbeddingSet, CorrelationInstructions, RecursiveEmbedding, DummyEmbedding, PositionEmbedding, OffsetEmbedding, CyclicEmbedding, SequenceEmbedding
+from embed import EmbeddingSet, CorrelationInstructions, RecursiveEmbedding, DummyEmbedding, PositionEmbedding, OffsetEmbedding, CyclicEmbedding, SequenceEmbedding, FullyNested
 import torchtext
-
+import penman
 
 def recursive2(source1, source2):
     instructions = CorrelationInstructions([1])
@@ -50,8 +50,31 @@ if __name__ == "__main__":
     # es2 = EmbeddingSet([ft_en, g6b300], RecursiveEmbedding, "corr")
     # es3 = EmbeddingSet([g6b300, ft_en], RecursiveEmbedding, "corr")
 
-    es1 = EmbeddingSet([ft_en, g6b300], OffsetEmbedding, "conv")
+    es1 = EmbeddingSet([ft_en, g6b300], OffsetEmbedding, "conv", max_vocab=10000)
     es1.embed_set(i1)
+
+    s = """(c / choose-01
+          :ARG1 (c2 / concept :quant 100
+                :ARG1-of (i / innovate-01))
+          :li 2
+          :purpose (e / encourage-01
+                :ARG0 c2
+                :ARG1 (p / person
+                      :ARG1-of (e2 / employ-01))
+                :ARG2 (a / and
+                      :op1 (r / research-01
+                            :ARG0 p)
+                      :op2 (d / develop-02
+                            :ARG0 p)
+                      :time (o / or
+                            :op1 (w / work-01
+                                  :ARG0 p)
+                            :op2 (t2 / time
+                                  :poss p
+                                  :mod (s / spare))))))"""
+
+    p = FullyNested(penman.decode(s))
+    p.embed(es1)
     # es1.export_embeddings("ft_en_g6b300_conv_1.txt")
     # es2.pickle_embeddings("ft_en_g6b300_conv_1.pkl")
 
