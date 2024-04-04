@@ -64,15 +64,13 @@ class CBOW:
         else:
             before_context = []
         if len(c_list) == 0:
-            after_context = [":snt"] * c_window_size
+            after_context = ["<UNK>"] * c_window_size
         else:
             after_context = []
 
 
         if len(p_list) > 0:
             while len(before_context) < p_window_size:
-                if len(p_list) == 0:
-                    before_context.append(":snt")
                 for p in p_list:
                     before_context.insert(0, p[1])
                 for p in p_list:
@@ -87,8 +85,6 @@ class CBOW:
 
         if len(c_list) > 0:
             while len(after_context) < c_window_size:
-                if len(c_list) == 0:
-                    after_context.append(":snt") # TODO: change to actual after context
                 for c in c_list:
                     after_context.append(c[0])
                 for c in c_list:
@@ -213,9 +209,10 @@ class CBOW:
         self.embeddings = (self.W1 + self.W2.T)/2
 
     def dump_embeddings(self, outfile):
-        with open(outfile, "w") as f:
-            for word, index in self.word2index.items():
-                f.write(f"{word} {' '.join(map(str, self.embeddings[:, index]))}\n")
+        with open(outfile, "w", encoding="utf-8") as f:
+            for e in tqdm(self.index2word, desc="Exporting Embeddings..."):
+                f.write(f"{self.index2word[e]} {' '.join(map(str, self.embeddings[:, e]))}\n")
+
 
     def embed(self, method=None):
         if method is not None:
@@ -247,7 +244,17 @@ class CBOW:
                     self.forward(self.context_to_vector(context_window), self.one_hot(relation))
 
                 for e in graph.attributes():  # no children possible
-                    continue # TODO: implement
+                    relation = e.role
+                    p_node = e.source
+                    c_node = e.target
+                    gp_list = parents(graph, p_node)
+                    gc_list = children(graph, c_node)
+                    context_window = self.fill_near(gp_list, gc_list, self.window_size - 1, self.window_size - 1, graph)
+                    # put p_node and c_node in the middle
+                    context_window.insert(self.window_size - 1, p_node)
+                    context_window.insert(self.window_size, c_node)
+                    self.forward(self.context_to_vector(context_window), self.one_hot(relation))
+
             elif self.method == "deepest":
                 # get parents sort + repeat, get children sort + repeat until full
                 for e in list(graph.variables()):  # could have children
@@ -293,7 +300,6 @@ class CBOW:
                     pass
             else:
                 raise ValueError("Invalid embedding method")
-        # return EmbeddingSet.from_embeddings(embeddings=embs)
 
 
 class Skipgram:
@@ -323,7 +329,6 @@ class Skipgram:
                 pass
             else:
                 raise ValueError("Invalid embedding method")
-        # return EmbeddingSet.from_embeddings(embeddings=embs)
 
 
 if __name__ == "__main__":
