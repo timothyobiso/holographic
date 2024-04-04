@@ -1,9 +1,9 @@
 # import io
 from tqdm import tqdm
-# import torch
 import penman
 from torch.fft import rfft, irfft
 import numpy as np
+import torch
 
 # def load_vectors(fname):
 #     fin = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
@@ -15,11 +15,11 @@ import numpy as np
 #     return data
 
 def conv(a, b):
-    return irfft(np.multiply(rfft(a), rfft(b)))
+    return irfft(torch.mul(rfft(a), rfft(b)))
 
 
 def corr(a, b):
-    return irfft(np.multiply(np.conj(rfft(a)), rfft(b)))
+    return irfft(torch.mul(np.conj(rfft(a)), rfft(b)))
 
 def parents(g: penman.Graph, child):
     return [(p, r) for p, r, c in g.triples if c == child]

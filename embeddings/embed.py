@@ -48,11 +48,21 @@ class HolographicWordEmbedding:
 
 
 class EmbeddingSet:
-    def __init__(self, sources=None, strategy=None, binder="conv", vocab_index=0, max_vocab=-1, embeddings=None):
-        if embeddings is not None:
-            self.embeddings = embeddings
-            self.stoi = {k: i for i, k in enumerate(embeddings.keys())}
-            self.itos = list(embeddings.keys())
+    def __init__(self, sources=None, strategy=None, binder="conv", vocab_index=0, max_vocab=-1, file=None):
+        if file is not None:
+            # read in embeddings from file
+            self.embeddings = {}
+            self.stoi = {}
+            self.itos = []
+            with open(file, "r") as f:
+                for line in tqdm(f, desc="Reading Embeddings"):
+                    if len(line.split(" ")) == 2:
+                        continue
+                    tokens = line.strip().split(" ")
+                    # if tokens[1] is not a float
+                    self.embeddings[tokens[0]] = torch.tensor(list(map(float, tokens[1:])))
+                    self.itos.append(tokens[0])
+                    self.stoi[tokens[0]] = len(self.itos) - 1
         else:
             self.embeddings: Dict[HolographicWordEmbedding] = {}
             self.strategy = strategy
@@ -60,12 +70,17 @@ class EmbeddingSet:
             self.stoi = self.sources[vocab_index].stoi
             self.itos = self.sources[vocab_index].itos
             for e in tqdm(self.itos, desc="Creating Embedding Set"):
-                self.embeddings[e] = self.strategy([s[e] for s in sources], binder)
+                # if not in embedding source, tensor of zeros
+                self.embeddings[e] = self.strategy([s[e] if e in s else torch.rand(s[e].size()) for s in sources], binder)
 
         if max_vocab != -1:
             self.itos = self.itos[:max_vocab]
         self.binder = binder
 
+        if binder == "conv":
+            self.bind = conv
+        else:
+            self.bind = corr
 
     def embed_set(self, instructions: CorrelationInstructions = None):
         for e in tqdm(self.itos, desc="Embedding..."):
@@ -74,16 +89,17 @@ class EmbeddingSet:
     def export_embeddings(self, outfile):
         with open(outfile, "w") as f:
             for e in tqdm(self.itos, desc="Exporting Embeddings..."):
-                f.write(f"{e} {' '.join(map(lambda a: str(float(a)), self.embeddings[e].embedding))}\n")
+                try:
+                    f.write(f"{e} {' '.join(map(lambda a: str(float(a)), self.embeddings[e].embedding))}\n")
+                except:
+                    print(e, self.embeddings[e].embedding)
 
     def pickle_embeddings(self, outfile):
         torch.save(self.embeddings, outfile)
 
-
-
     @classmethod
-    def from_embeddings(cls, embeddings, binder="conv"):
-        return cls(embeddings=embeddings, binder=binder)
+    def from_embedding_file(cls, file, binder="conv"):
+        return cls(file=file, binder=binder)
 
 class HolographicSentenceEmbedding:
     def __init__(self, amr, binder="conv", length=300, dim=1):
@@ -108,7 +124,7 @@ class RecursiveEmbedding(HolographicWordEmbedding):
     def embed(self, instructions: CorrelationInstructions = None):
         t_emb = self.sources.copy()
         if instructions is None:
-            instructions = CorrelationInstructions(list(range(1, len(t_emb))))
+            instructions = CorrelationInstructions([1] * (len(t_emb)-1))
         for gap in instructions:
             t_emb[gap-1] = self.bind(t_emb[gap-1], t_emb[gap])
             del t_emb[gap]
@@ -142,7 +158,7 @@ class PositionEmbedding(HolographicWordEmbedding):
 
 
 class OffsetEmbedding(HolographicWordEmbedding):
-    def __init__(self, sources, binder, offset: int=1, finish=False):
+    def __init__(self, sources, binder, offset=1, finish=False):
         super().__init__(sources, binder)
         self.offset = offset
         self.finish = finish
