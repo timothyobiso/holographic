@@ -169,6 +169,7 @@ def pearson_correlation(x, y):
     r = r_num / r_den
     return r
 
+
 class PositionalModel(nn.Module):
     def __init__(self, embedding_dim, s1, s2, bind="conv"):
         super(PositionalModel, self).__init__()
@@ -191,6 +192,7 @@ class PositionalModel(nn.Module):
 
         return sim_fn(w1, w2)
 
+
 class SimplePositionalModel(nn.Module):
     def __init__(self, embedding_dim, s1, s2, bind="conv"):
         super(SimplePositionalModel, self).__init__()
@@ -212,6 +214,7 @@ class SimplePositionalModel(nn.Module):
         w2 = e2
 
         return sim_fn(w1, w2)
+
 
 class SimpleModel(nn.Module):
     def __init__(self, embedding_dim, s1, s2, bind="conv"):
@@ -271,7 +274,6 @@ class SimpleDoubleModel(nn.Module):
         return embs
 
 
-
 class SimilarityModel(nn.Module):
     def __init__(self, embedding_dim, s1, s2, bind="conv"):
         super(SimilarityModel, self).__init__()
@@ -317,7 +319,6 @@ def n_nearest_neighbors(embeddings_dict, target_embedding, n):
     neighbors = [(keys[idx], distances[idx].item()) for idx in indices]
 
     return neighbors
-
 
 
 def train_similarity(s1, s2):
