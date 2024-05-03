@@ -5,7 +5,9 @@ def filter_text(input_filename, output_filename):
             if line.startswith("#"):
                 outfile.write(line)
 
-# Example usage
-input_file = 'qald9_test.txt'  # Name of your input file
-output_file = 'cleaned_qald9_test.txt'  # Name of your output file
-filter_text(input_file, output_file)
+
+if __name__ == "__main__":
+    # Example usage
+    input_file = 'qald9_test.txt'  # Name of your input file
+    output_file = 'cleaned_qald9_test.txt'  # Name of your output file
+    filter_text(input_file, output_file)

@@ -14,10 +14,12 @@ from utils import conv, corr
 
 from embed import EmbeddingSet
 
+
 def load_eval_dataset(file):
     # detect and fix differences so it is in the format of
     # word1, word2, score
     return pd.read_csv(file)
+
 
 # 1 if similar, 0 if not similar
 def cosine_similarity(embed1, embed2):
@@ -105,6 +107,7 @@ def run_similarity():
                 print(f"Spearman: {spearman.statistic}")
                 print(f"Pearson: {pearson.statistic}\n\n")
 
+
 def pearson_correlation(x, y):
     x1 = torch.stack(x)
     y1 = torch.stack(y)
@@ -117,6 +120,7 @@ def pearson_correlation(x, y):
     r_den = torch.sqrt(torch.sum(xm ** 2) * torch.sum(ym ** 2))
     r = r_num / r_den
     return r
+
 
 def n_nearest_neighbors(embeddings_dict, target_embedding, n):
     # get the n nearest neighbors to the word
