@@ -2,6 +2,7 @@ from embed import EmbeddingSet, CorrelationInstructions, RecursiveEmbedding, Dum
 import torchtext
 import penman
 
+
 def recursive_word_embedding(source1, source2):
     instructions = CorrelationInstructions([1])
     r1 = RecursiveEmbedding([source1, source2], "conv")
@@ -14,6 +15,7 @@ def recursive_word_embedding(source1, source2):
     e3 = r3.embed(instructions)
 
     return e1, e2, e3
+
 
 if __name__ == "__main__":
     # obtain the embeddings
