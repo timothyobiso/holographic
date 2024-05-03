@@ -1,9 +1,6 @@
 from typing import List, Dict
 from tqdm import tqdm
-import pickle
-from utils import *
-
-from torch import nn
+from embeddings.utils import *
 import torch
 
 
@@ -206,7 +203,6 @@ class SequenceEmbedding(HolographicWordEmbedding):
         return self.embedding
 
 
-# TODO: deal with reentrant nodes
 class FullyNested(HolographicSentenceEmbedding):
     def __init__(self, amr, binder="conv"):
         super().__init__(amr, binder)
@@ -220,6 +216,7 @@ class FullyNested(HolographicSentenceEmbedding):
             return self.bind(embeddings.embeddings[rel].embedding, embeddings.embeddings[top].embedding)
 
         self.embedding = _embed(":snt", self.amr.top)
+        return self.embedding
 
 
 class VerbFrame(HolographicSentenceEmbedding):
