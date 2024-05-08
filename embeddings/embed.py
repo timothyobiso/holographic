@@ -45,7 +45,7 @@ class HolographicWordEmbedding:
 
 
 class EmbeddingSet:
-    def __init__(self, sources=None, strategy=None, binder="conv", vocab_index=0, max_vocab=-1, file=None):
+    def __init__(self, sources=None, strategy=None, binder="conv", vocab_index=0, file=None):
         if file is not None:
             # read in embeddings from file
             self.embeddings = {}
@@ -70,8 +70,6 @@ class EmbeddingSet:
                 # if not in embedding source, tensor of zeros
                 self.embeddings[e] = self.strategy([s[e] if e in s else torch.rand(s[e].size()) for s in sources], binder)
 
-        if max_vocab != -1:
-            self.itos = self.itos[:max_vocab]
         self.binder = binder
 
         if binder == "conv":

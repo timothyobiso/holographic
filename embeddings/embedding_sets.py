@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     method = "conv"  # "corr"
 
-    es1 = EmbeddingSet([ft_en, g6b300], RecursiveEmbedding, method, max_vocab=10000)
+    es1 = EmbeddingSet([ft_en, g6b300], RecursiveEmbedding, method)
     es1.embed_set(i1)
     es1.export_embeddings(f"ft_en_g6b300_{method}_1.txt")
 
