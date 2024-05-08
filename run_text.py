@@ -43,3 +43,6 @@ def main():
     es1.embed_set(CorrelationInstructions([int(i) for i in args.ins.split(",")]))
     es1.export_embeddings(args.output_file)
 
+if __name__ == "__main__":
+    main()
+
