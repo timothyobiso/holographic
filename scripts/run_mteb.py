@@ -1,7 +1,6 @@
 import numpy as np
 import torch
-from mteb import MTEB
-from mteb import MTEB_MAIN_EN
+from mteb import MTEB, MTEB_MAIN_EN
 from tqdm import tqdm
 
 class MyAMRModel():
@@ -9,15 +8,14 @@ class MyAMRModel():
 		self.file = file
 		self.embs = {}
 
-class MyModel():
-
+class NaiveModel:
 	def __init__(self, file):
 		self.file = file
 		self.embs = {}
 		with open(self.file, "r") as f:
-                        for line in tqdm(f, desc="Loading Embedding"):
-                                tokens = line.strip().split(" ")
-                                self.embs["".join(tokens[:-300]).lower()] = torch.tensor(list(map(float, tokens[-300:])))
+			for line in tqdm(f, desc="Loading Embedding"):
+				tokens = line.strip().split(" ")
+				self.embs["".join(tokens[:-300]).lower()] = torch.tensor(list(map(float, tokens[-300:])))
 
 	def encode(self, sentences: list[str], **kwargs) -> list[np.ndarray] | list[torch.Tensor]:
 		embs = []
@@ -29,6 +27,6 @@ class MyModel():
 
 if __name__ == "__main__":
 	file = "ft_en_g6b300_conv_1.txt"
-	model = MyModel(file)
+	model = NaiveModel(file)
 	evaluation = MTEB(tasks=MTEB_MAIN_EN, task_langs=["en"])
 	evaluation.run(model, output_folder=f"results/{file}")
