@@ -40,4 +40,6 @@ def main():
         m = RecursiveEmbedding
 
     es1 = EmbeddingSet([args.embedding_set1, args.embedding_set2], m, args.bind)
+    es1.embed_set(CorrelationInstructions([int(i) for i in args.ins.split(",")]))
+    es1.export_embeddings(args.output_file)
 
