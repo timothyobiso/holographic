@@ -28,7 +28,7 @@ def main():
         m = RecursiveEmbedding
     elif args.method == "dummy":
         m = DummyEmbedding
-    elif args.method == "postiion":
+    elif args.method == "position":
         m = PositionEmbedding
     elif args.method == "offset":
         m = OffsetEmbedding
