@@ -2,10 +2,7 @@ import torch
 import torchhd
 from torchhd import structures
 import penman
-from penman.models.amr import model
-import numpy as np
 from tqdm import tqdm
-import numpy as np
 
 
 def load_graphs(filepath):
@@ -33,58 +30,50 @@ def prepare_memories(graph, variables, node, rel, hvs, v2i):
 	mems = []
 	if rel == ":ROOT":
 		mems.append((hvs[v2i[rel]], hvs[v2i[variables[node]]]))
-		#print(rel, node)
 	else:
 		mems.append((rel, hvs[v2i[variables[node]]]))
-		#print("into", node)
 
 	for i, child in enumerate(graph.edges(source=node)):
 		mems.append((hvs[v2i[variables[node]]].bind(hvs[v2i[f":rel{i+1}"]]), hvs[v2i[child.role]]))
-		#print("APPENDED", node, f"rel{i}", child.role)
 		mems += prepare_memories(graph, variables, child.target, hvs[v2i[variables[node]]].bind(hvs[v2i[child.role]]), hvs, v2i)
 	return mems
 	
 
-def store_memories(mems, device):
+def store_memories(mems, device, d):
 	r1 = structures.HashTable(d, device=device, vsa="HRR")
-	#print(len(mems))
-	#print(len(mems[0]))
-	#print(mems[0])
-	#print(mems[1])
 	for _ in range(5):
 		for mem in tqdm(mems, desc="Storing"):
 			r1.add(torchhd.HRRTensor(mem[0]), torchhd.HRRTensor(mem[1]))
 	return r1
 
 
-def train(graphs, hvs, vocab, d=1000, epochs=1, device="cpu"):
+def train(graphs, hvs, vocab, d=1000, device="cpu", n=-1):
 	v2i = {v: i for i, v in enumerate(vocab)}
 	accs = []
-	for graph in graphs:
+	if n == -1:
+		n = len(graphs)
+	for graph in graphs[:n]:
 		variables = get_variables(graph)
 		mems = prepare_memories(graph, variables, graph.top, ":ROOT", hvs, v2i) 
-		r1 = store_memories(mems,  device)
+		r1 = store_memories(mems,  device, d)
 		
-		test(r1, mems, variables, hvs, v2i, device)
+		acc, total = test(r1, mems, hvs, v2i, device)
+		accs.append(acc)
+
+	# print average accuracy native python
+	print(f"Average Accuracy: {sum(accs)/len(accs*100)}%\n")
 
 
-def test(model, mems, variables, hvs, v2i, device):
+def test(model, mems, hvs, v2i, device):
 	total = 0
 	correct = 0
 		
 	for mem in tqdm(mems, desc="Testing..."):
-
-		# print("correct word:", child)
-		
 		result = model.get(torchhd.HRRTensor(mem[0]))
 		
 		sim = float(result.cosine_similarity(torchhd.HRRTensor(mem[1])))
 		scores = list(map(float, [result.cosine_similarity(torch.tensor(hvs[c], device=device)) for c in range(len(v2i))]))
-		
-		# print("SIM:", sim)
-		# print("SCORES:", scores)
-		
-		# print(sim, max(scores))
+
 		if max(scores) == sim:
 			correct += 1
 
@@ -103,34 +92,4 @@ if __name__ == "__main__":
 	
 	hvs = torchhd.HRRTensor.random(len(vocab), d, device="cpu")
 	
-	train(graphs, hvs, vocab, d=d, epochs=1)
-
-	test(model, filepath, hvs)
-
-
-
-	s = """(c / choose-01
-          :ARG1 (c2 / concept
-                :quant 100
-                :mod (i / innovate-01)))"""
-	s = """(c / choose-01
-          :ARG1 (c2 / concept 
-                :quant 100
-                :ARG1-of (i / innovate-01))
-          :li 2
-          :purpose (e / encourage-01
-                :ARG0 c2
-                :ARG1 (p / person
-                      :ARG1-of (e2 / employ-01))
-                :ARG2 (a / and
-                      :op1 (r / research-01
-                            :ARG0 p)
-                      :op2 (d / develop-02
-                            :ARG0 p)
-                      :time (o / or
-                            :op1 (w / work-01
-                                  :ARG0 p)
-                            :op2 (t2 / time
-                                  :poss p
-                                  :mod (s / spare))))))"""
-
+	train(graphs, hvs, vocab, d=d, device="cpu")

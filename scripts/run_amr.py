@@ -2,11 +2,8 @@ import torch
 import torchhd
 from torchhd import structures
 import penman
-from penman.models.amr import model
-import numpy as np
 from tqdm import tqdm
 import numpy as np
-
 
 def load_graphs(filepath):
 	return penman.load(filepath)
@@ -57,10 +54,7 @@ def train(graphs, hvs, vocab, d=1000, device="cpu", n=-1) -> structures.HashTabl
 
 	# print average accuracy
 	accs = np.array(accs)
-	print(f"Average accuracy: {np.mean(accs[:,0])*100:.3f}%")
-
-
-
+	print(f"Average accuracy: {np.mean(accs[:,0])*100:.3f}%\n")
 
 def test(model, graph, hvs, vocab, device):
 	v2i = {v: i for i, v in enumerate(vocab)}
@@ -71,7 +65,6 @@ def test(model, graph, hvs, vocab, device):
 
 		if triple[1] == ":instance":
 			continue
-			# print(triple)
 		variables = get_variables(graph)	
 		if triple[0] in variables:
 			parent = variables[triple[0]]
@@ -84,15 +77,11 @@ def test(model, graph, hvs, vocab, device):
 			child = triple[2]
 		
 		key = hvs[v2i[parent]].bind(torch.tensor(hvs[v2i[triple[1]]]))
-		# print("correct word:", child)
 		
 		result = model.get(torchhd.tensors.map.MAPTensor(key).to(device))
 		
 		sim = float(result.cosine_similarity(torch.tensor(hvs[v2i[child]],device=device)))
 		scores = list(map(float, [result.cosine_similarity(torch.tensor(hvs[v2i[c]],device=device)) for c in vocab]))
-		
-		# print("SIM:", sim)
-		# print("SCORES:", scores)
 		
 		if max(scores) == sim:
 			correct += 1
@@ -108,10 +97,8 @@ if __name__ == "__main__":
 	vocab = get_vocab(graphs)
 	
 	hvs = torchhd.HRRTensor.random(len(vocab), d, device="cuda:0")
-	
 	model = train(graphs, hvs, vocab, d=d, device="cuda:0")
 
-	# test(model, graphs, hvs, vocab, "cuda:0")
 
 	s = """(c / choose-01
           :ARG1 (c2 / concept 

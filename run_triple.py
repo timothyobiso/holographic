@@ -1,8 +1,6 @@
 import argparse
 import os
 import sys
-
-import torch
 import torchhd
 
 from scripts.run_amr import load_graphs, get_vocab, train
