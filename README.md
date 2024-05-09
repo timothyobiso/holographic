@@ -39,7 +39,7 @@ This task can be run using the `run_visualize.py` script. The script takes the f
 
 Example:
 ```
-python run_visualize.py data/holographic.txt --sim data/word_similarity --output_folder word_similarity_visualization.png
+python run_visualize.py data/holographic.txt --sim data/word_similarity --output_folder word_similarity_visualization
 ```
 
 #### MTEB Evaluation of Holographic Embeddings

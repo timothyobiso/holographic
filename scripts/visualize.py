@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 import torchtext
 from embeddings.embed import EmbeddingSet
 
-if __name__ == "__main__":
+def main():
     # load embedding sets from file
     s = EmbeddingSet.from_embedding_file("../embeddings/recur_conv_corr/ft_en_g6b300_corr_1.txt")
     for dataset in "wordsim353-rel", "wordsim353-sim", "simlex999", "men":
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         plt.scatter(X[:, 0], X[:, 1], s=5)
 
         for i, word in enumerate(relevant_vectors):
-            if (i) % 2 == 0:
+            if i % 2 == 0:
                 plt.annotate(word, (X[:, 0][i], X[:, 1][i]))
 
         for a in plt.gca().texts:
@@ -47,6 +47,9 @@ if __name__ == "__main__":
 
         fig.show()
 
+
+if __name__ == "__main__":
+    main()
 
 
 
