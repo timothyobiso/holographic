@@ -12,51 +12,45 @@ pip install -r requirements.txt
 ### Form Holographic Embeddings
 #### Static Embeddings
 This task can be run using the `run_text.py` script. The script takes the following arguments:
-- the paths to the embedding sets
+- the path to the (already bound) holographic embedding set
 - `--ins` the correlation instructions separated by commas (e.g. `1,2,3`, default is `1,1,1...`)
-- `--bind` the binding method to use (either `conv` or `corr`, default is `conv`)
 - `--output` the name of the output file
 
 Example:
 ```
-python run_text.py data/word2vec.txt data/glove.txt --ins 1,2,3 --bind conv --output new_embeddings.txt
+python run_text.py data/holographic.txt --output new_embeddings.txt
 ```
 
 ### Evaluate Holographic Embeddings on Text Tasks
 #### Word Similarity
 This task can be run using the `run_word_similarity.py` script. The script takes the following arguments:
-- the paths to the embedding sets
+- the path to the (already bound) holographic embedding set
 - `--sim` the path to the word similarity dataset folder
 - `--output` the name of the output file
 
 Example:
 ```
-python run_word_similarity.py data/word2vec.txt data/glove.txt --sim data/word_similarity --output word_similarity_results.txt
+python run_word_similarity.py data/holographic.txt --sim data/word_similarity --output word_similarity_results.txt
 ```
 
 #### Visualize Word Embeddings
 This task can be run using the `run_visualize.py` script. The script takes the following arguments:
-- the paths to the embedding sets
+- the path to the (already bound) holographic embedding set
 - `--sim` the path to the word similarity dataset folder
-- `--output` the name of the output file
+- `--output_folder` the name of the output folder
 
 Example:
 ```
-python run_visualize.py data/word2vec.txt data/glove.txt --sim data/word_similarity --output word_similarity_visualization.png
+python run_visualize.py data/holographic.txt --sim data/word_similarity --output_folder word_similarity_visualization.png
 ```
 
 #### MTEB Evaluation of Holographic Embeddings
 This task can be run using the `run_mteb.py` script. The script takes the following arguments:
-- the paths to the embeddings or the embedding model names
-- - `--static` or `--contextual` to specify the type of embeddings to evaluate
-  - `--static` will expect embeddings as files
-  - `--contextual` will expect embeddings as models
-  - If not provided, the script will default to `--static`, then try `--contextual`
-- `--bind` the binding method to use (either `conv` or `corr`)
-
+- the path to the (already bound) holographic embedding set
+- `--output_folder` the name of the output folder
 Example:
 ```
-python run_mteb.py data/word2vec.txt data/glove.txt --bind conv --static
+python run_mteb.py data/holographic.txt --output_folder mteb_results
 ```
 
 ### Evaluate Holographic Embeddings on Graph Tasks
