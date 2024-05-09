@@ -1,0 +1,13 @@
+torch
+numpy
+tqdm
+pandas
+matplotlib
+torchtext
+sklearn
+scikit-learn
+scipy
+argparse
+transformers
+torchhd
+penman
