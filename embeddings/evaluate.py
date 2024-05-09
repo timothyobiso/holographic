@@ -42,70 +42,57 @@ def hyperbolic_distance(embed1, embed2):
     # Get the hyperbolic distance
     return torch.arccosh(1 + 2 * d)
 
-# def spherical_distance(embed1, embed2):
-#     return torch.acos(torch.dot(embed1, embed2) / (torch.norm(embed1) * torch.norm(embed2)))
+def spherical_distance(embed1, embed2):
+    return torch.acos(torch.dot(embed1, embed2) / (torch.norm(embed1) * torch.norm(embed2)))
 
 
-# sim_fns = [cosine_similarity, euclidean_distance, hyperbolic_distance]
-# this is the only one worth looking at....
-sim_fns = [cosine_similarity]
+sim_fns = [cosine_similarity, euclidean_distance, hyperbolic_distance, spherical_distance]
 
-# embedding_files = ["ft_en_g6b300_conv_1.txt", "ft_en_g6b300_corr_1.txt", "cbow_amr3_5ns_deep_TOY.txt", "cbow_amr3_5ns_near_TOY.txt"]
-embedding_files = [".vector_cache/glove.6B.50d.txt", ".vector_cache/glove.6B.100d.txt", ".vector_cache/glove.6B.300d.txt"]
-# embedding_files = [".vector_cache/wiki.en.vec"]
-# embedding_files = ["cbow running on tarski and shannon rn"]
-# write a model to obtain the best dummy vector
-
-datasets = {"similarity": ["wordsim353-sim.csv", "wordsim353-rel.csv", "simlex999.csv", "men.csv"],
-            "analogy": ["semeval.csv", "sat.csv", "google.csv"],
-            "clustering": ["bm.csv", "ap.csv", "bless.csv"],
-            "outlier": ["888.csv", "wordsim500.csv"]}
+datasets = ["wordsim353-sim.csv", "wordsim353-rel.csv", "simlex999.csv", "men.csv"]
             # "sentence_similarity": []
 
 
-def run_similarity():
-    for f in embedding_files:
-        print("Embedding File:\t", f)
-        embs = EmbeddingSet.from_embedding_file(f)
+def run_similarity(embedding_file, sim_path="../data/similarity/"):
+    embs = EmbeddingSet.from_embedding_file(embedding_file)
 
-        for data in datasets["similarity"]:
-            print("Dataset:\t", data)
-            dataset = load_eval_dataset(f"../data/similarity/{data}")
+    for data in datasets:
+        print("Dataset:\t", data)
+        dataset = load_eval_dataset(f"{sim_path}{data}")
 
-            for similarity in sim_fns:
-                print("Simiarity Function:\t", similarity.__name__)
+        for similarity in sim_fns:
+            print("Simiarity Function:\t", similarity.__name__)
 
-                model_sim = []
-                human_sim = []
-                for i in range(len(dataset)):
-                    word1 = str(dataset.loc[i]["word1"])
-                    word2 = str(dataset.loc[i]["word2"])
+            model_sim = []
+            human_sim = []
+            for i in range(len(dataset)):
+                word1 = str(dataset.loc[i]["word1"])
+                word2 = str(dataset.loc[i]["word2"])
 
-                    # men.csv has words with -n, -v, -j at the end for POS
-                    if word1.endswith("-n") or word1.endswith("-v") or word1.endswith("-j"):
-                        word1 = word1[:-2]
-                    if word2.endswith("-n") or word2.endswith("-v") or word2.endswith("-j"):
-                        word2 = word2[:-2]
+                # men.csv has words with -n, -v, -j at the end for POS
+                if word1.endswith("-n") or word1.endswith("-v") or word1.endswith("-j"):
+                    word1 = word1[:-2]
+                if word2.endswith("-n") or word2.endswith("-v") or word2.endswith("-j"):
+                    word2 = word2[:-2]
 
-                    score = dataset.loc[i]["similarity"]
-                    if np.isnan(score):
-                        continue
+                score = dataset.loc[i]["similarity"]
+                if np.isnan(score):
+                    continue
 
-                    vocab_only = True  # SET HERE
+                vocab_only = True  # SET HERE
 
-                    if word1 in embs.embeddings and word2 in embs.embeddings:
-                        model_sim.append(float(similarity(embs.embeddings[word1], embs.embeddings[word2])))
+                if word1 in embs.embeddings and word2 in embs.embeddings:
+                    model_sim.append(float(similarity(embs.embeddings[word1], embs.embeddings[word2])))
+                    human_sim.append(score)
+                else:
+                    if not vocab_only:
+                        model_sim.append(0.0)
                         human_sim.append(score)
-                    else:
-                        if not vocab_only:
-                            model_sim.append(0.0)  # DEFAULT CASE
-                            human_sim.append(score)
 
-                # compute spearman and pearson correlation
-                spearman = spearmanr(model_sim, human_sim)
-                pearson = pearsonr(model_sim, human_sim)
-                print(f"Spearman: {spearman.statistic}")
-                print(f"Pearson: {pearson.statistic}\n\n")
+            # compute spearman and pearson correlation
+            spearman = spearmanr(model_sim, human_sim)
+            pearson = pearsonr(model_sim, human_sim)
+            print(f"Spearman: {spearman.statistic}")
+            print(f"Pearson: {pearson.statistic}\n\n")
 
 
 def pearson_correlation(x, y):
@@ -148,7 +135,7 @@ def n_nearest_neighbors(embeddings_dict, target_embedding, n):
 
 if __name__ == "__main__":
 
-    g6b300 = torchtext.vocab.GloVe(name="6B", dim=300)
-    ft_en = torchtext.vocab.FastText(language="en")
+    # g6b300 = torchtext.vocab.GloVe(name="6B", dim=300)
+    # ft_en = torchtext.vocab.FastText(language="en")
 
-    run_similarity()
+    run_similarity(embedding_file="ft_en_g6b300_conv_1.txt")

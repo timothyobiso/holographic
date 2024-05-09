@@ -26,18 +26,16 @@ python run_text.py data/holographic.txt --output new_embeddings.txt
 This task can be run using the `run_word_similarity.py` script. The script takes the following arguments:
 - the path to the (already bound) holographic embedding set
 - `--sim` the path to the word similarity dataset folder
-- `--output` the name of the output file
 
 Example:
 ```
-python run_word_similarity.py data/holographic.txt --sim data/word_similarity --output word_similarity_results.txt
+python run_word_similarity.py data/holographic.txt --sim data/word_similarity
 ```
 
 #### Visualize Word Embeddings
 This task can be run using the `run_visualize.py` script. The script takes the following arguments:
 - the path to the (already bound) holographic embedding set
 - `--sim` the path to the word similarity dataset folder
-- `--output_folder` the name of the output folder
 
 Example:
 ```
