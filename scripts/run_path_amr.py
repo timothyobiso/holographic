@@ -72,7 +72,7 @@ def test(model, mems, hvs, v2i, device):
 		result = model.get(torchhd.HRRTensor(mem[0]))
 		
 		sim = float(result.cosine_similarity(torchhd.HRRTensor(mem[1])))
-		scores = list(map(float, [result.cosine_similarity(torch.tensor(hvs[c], device=device)) for c in range(len(v2i))]))
+		scores = [float(result.cosine_similarity(torch.tensor(hvs[v2i[c]],device=device))) for c in vocab]
 
 		if max(scores) == sim:
 			correct += 1

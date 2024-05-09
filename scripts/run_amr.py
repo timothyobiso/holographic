@@ -81,7 +81,7 @@ def test(model, graph, hvs, vocab, device):
 		result = model.get(torchhd.tensors.map.MAPTensor(key).to(device))
 		
 		sim = float(result.cosine_similarity(torch.tensor(hvs[v2i[child]],device=device)))
-		scores = list(map(float, [result.cosine_similarity(torch.tensor(hvs[v2i[c]],device=device)) for c in vocab]))
+		scores = [float(result.cosine_similarity(torch.tensor(hvs[v2i[c]],device=device))) for c in vocab]
 		
 		if max(scores) == sim:
 			correct += 1
