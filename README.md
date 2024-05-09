@@ -3,7 +3,7 @@
 This repository contains the code for the paper "Holographic Embeddings for Text and Graphs" by Timothy Obiso. The paper is available on arXiv: []().
 
 ## Requirements
-The code is writen in Python 3.X. Use of other versions is at your own risk! The required packages are listed in `requirements.txt`. You can install them using pip:
+The code is writen in Python 3.11. Use of other versions is at your own risk! The required packages are listed in `requirements.txt`. You can install them using pip:
 ```
 pip install -r requirements.txt
 ```
