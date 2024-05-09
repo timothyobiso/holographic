@@ -1,0 +1,150 @@
+zone (*) :domain
+kill-01 (*) :ARG0
+have-degree-91 (*) :ARG1
+person (*) :mod
+state (*) :mod
+medal (*) :quant
+artist (*) :mod
+profession (*) :mod
+instrument (*) :polarity
+seat (*) :quant
+program (*) :mod
+country (*) :mod
+country (*) :mod
+airport (*) :mod
+nickname-01 (*) :ARG2
+name-01 (*) :ARG2
+have-org-role-91 (*) :ARG0
+country (*) :mod
+software (*) :mod
+country (*) :mod
+person (*) :quant
+skip
+person (*) :mod
+skip
+die-01 (*) :manner
+state (*) :mod
+class (*) :mod
+skip
+have-rel-role-91 (*) :ARG0
+paint-02 (*) :ARG0
+have-degree-91 (*) :ARG1
+join-01 (*) :time
+person (*) :mod
+scientist (*) :mod
+write-01 (*) :ARG0
+skip
+skip
+nickname-01 (*) :ARG2
+city (*) :mod
+state (*) :mod
+have-degree-91 (*) :ARG1
+code (*) :domain
+scientist (*) :quant
+person (*) :mod
+skip
+moon (*) :quant
+name-01 (*) :ARG2
+fame-01 (*) :ARG2
+author-01 (*) :ARG0
+state (*) :mod
+temporal-quantity (*) :quant
+shoot-02 (*) :time
+skip
+have-rel-role-91 (*) :ARG0
+award-01 (*) :quant
+vegan (*) :polarity
+probe (*) :mod
+city (*) :mod
+marry-01 (*) :ARG2
+person (*) :quant
+revenue (*) :domain
+movie (*) :quant
+do-02 (*) :ARG0
+marry-01 (*) :ARG2
+country (*) :mod
+skip
+die-01 (*) :time
+have-degree-91 (*) :ARG0
+poet (*) :mod
+skip
+skip
+skip
+skip
+country (*) :mod
+skip
+die-01 (*) :time
+create-01 (*) :ARG0
+skip
+own-01 (*) :ARG0
+book (*) :mod
+influence-01 (*) :ARG1
+have-degree-91 (*) :ARG3
+company (*) :mod
+person (*) :mod
+have-rel-role-91 (*) :ARG0
+be-located-at-91 (*) :polarity
+language (*) :mod
+skip
+country (*) :mod
+have-rel-role-91 (*) :ARG0
+skip
+skip
+be-temporally-at-91 (*) :ARG2
+marry-1 (*) :ARG2
+subsidiary (*) :mod
+language (*) :mod
+marry-01 (*) :ARG2
+be-located-at-91 (*) :ARG0
+wavelength (*) :domain
+skip
+call-01 (*) “ARG1
+river (*) :mod
+locate-01 (*) :location
+person (*) :mod
+person (*) :quant
+name-01 (*) :ARG2
+start-01 (*) :location
+name-01 (*) :ARG2
+proclaim-01 (*) :time
+short-07 (*) :quant
+die-01 (*) :location
+found-01 (*) :time
+city (*) :mod
+date-entity (*) :year
+be-temporally-at-91 (*) :ARG2
+animal (*) :mod
+politician (*) :mod
+big (*) :quant
+call-01 (*) :polarity
+state (*) :mod
+die-01 (*) :time
+compose-01 (*) :ARG2
+have-org-role-91 (*) :ARG0
+movie (*) :mod
+name-01 (*) :ARG2
+skip
+calorie (*) :quant
+skip
+skip
+museum (*) :mod
+found-01 (*) :time
+become-01 (*) :ARG1
+have-rel-role-91 (*) :ARG0
+novelist (*) :domain
+studio (*) :mod
+company (*) :mod
+die-01 (*) :time
+found-01 (*) :ARG0
+have-degree-91 (*) :ARG0
+instrument (*) :mod
+and (*) :quant
+call-01 (*) :ARG1
+skip
+bridge (*) :mod
+company (*) :quant
+skip
+book (*) :mod
+have-degree-91 (*) :ARG1
+skip
+name-01 (*) :ARG2
