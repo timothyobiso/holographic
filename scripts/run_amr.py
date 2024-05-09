@@ -29,10 +29,12 @@ def get_vocab(graphs):
 	
 	return list(set(all_vocab))
 
-def train(graphs, hvs, vocab, d=1000, device="cpu") -> structures.HashTable:
+def train(graphs, hvs, vocab, d=1000, device="cpu", n=-1) -> structures.HashTable:
 	v2i = {v: i for i, v in enumerate(vocab)}
 	accs = []
-	for graph in tqdm(graphs, desc="Training"):
+	if n == -1:
+		n = len(graphs)
+	for graph in tqdm(graphs[:n], desc="Training"):
 		r1 = structures.HashTable(d, device=device)
 		variables = get_variables(graph)
 		for triple in graph.triples:
@@ -52,6 +54,12 @@ def train(graphs, hvs, vocab, d=1000, device="cpu") -> structures.HashTable:
 			key = hvs[v2i[parent]].bind(torch.tensor(hvs[v2i[triple[1]]])).to(device)
 			r1.add(torch.tensor(key), torch.tensor(hvs[v2i[child]]).to(device))
 		accs.append(test(r1, graph, hvs, vocab, device))
+
+	# print average accuracy
+	accs = np.array(accs)
+	print(f"Average accuracy: {np.mean(accs[:,0])*100:.3f}%")
+
+
 
 
 def test(model, graph, hvs, vocab, device):
@@ -90,7 +98,7 @@ def test(model, graph, hvs, vocab, device):
 			correct += 1
 		total += 1
 
-	print(f"Graph Accuracy: {correct/total*100}.3f%\n")
+	print(f"\nGraph Accuracy: {correct/total*100}.3f%\n")
 	return correct/total, total
 
 if __name__ == "__main__":

@@ -33,5 +33,5 @@ def main():
 
     hvs = torchhd.HRRTensor.random(len(vocab), args.embedding_size, device=args.device)
 
-    train(graphs, hvs, vocab, d=args.embedding_size)
+    train(graphs, hvs, vocab, d=args.embedding_size, n=args.n, device=args.device)
 
