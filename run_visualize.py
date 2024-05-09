@@ -22,6 +22,10 @@ def main():
     parser.add_argument('--no_show', type=bool, default=False, help='Don\'t show the plot')
     args = parser.parse_args()
 
+    if not os.path.exists(args.embedding_file):
+        print(f"Embedding file ({args.embedding_file}) does not exist")
+        sys.exit(1)
+
 
     # load embedding sets from file
     s = EmbeddingSet.from_embedding_file(args.embedding_file)
