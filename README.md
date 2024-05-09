@@ -58,11 +58,10 @@ This task can be run using the `run_triple.py` script. The script takes the foll
 - `--dataset` the dataset to use (default is AMR3.0)
 - `--vocab` the vocabulary to use (default is AMR3.0)
 - `--n` the number of examples to run (default is 1000)
-- `--output` the name of the output file
 
 Example:
 ```
-python run_triple.py --embedding_size 1000 --dataset AMR3.0 --vocab AMR3.0 --n 1000 --output triple_e1000_1000results.txt
+python run_triple.py --embedding_size 500
 ```
 
 #### Graph Reformation

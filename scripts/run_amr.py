@@ -29,30 +29,28 @@ def get_vocab(graphs):
 	
 	return list(set(all_vocab))
 
-def train(graphs, hvs, vocab, d=1000, epochs=1, device="cpu") -> structures.HashTable:
+def train(graphs, hvs, vocab, d=1000, device="cpu") -> structures.HashTable:
 	v2i = {v: i for i, v in enumerate(vocab)}
 	accs = []
 	for graph in tqdm(graphs, desc="Training"):
 		r1 = structures.HashTable(d, device=device)
 		variables = get_variables(graph)
+		for triple in graph.triples:
+			if triple[1] == ":instance":
+				continue
 
-		for _ in range(epochs):
-			for triple in graph.triples:
-				if triple[1] == ":instance":
-					continue
-				
-				if triple[0] in variables:
-					parent = variables[triple[0]]
-				else:
-					parent = triple[0]
-				
-				if triple[2] in variables:
-					child = variables[triple[2]]
-				else:
-					child = triple[2]
-				
-				key = hvs[v2i[parent]].bind(torch.tensor(hvs[v2i[triple[1]]])).to(device)
-				r1.add(torch.tensor(key), torch.tensor(hvs[v2i[child]]).to(device))
+			if triple[0] in variables:
+				parent = variables[triple[0]]
+			else:
+				parent = triple[0]
+
+			if triple[2] in variables:
+				child = variables[triple[2]]
+			else:
+				child = triple[2]
+
+			key = hvs[v2i[parent]].bind(torch.tensor(hvs[v2i[triple[1]]])).to(device)
+			r1.add(torch.tensor(key), torch.tensor(hvs[v2i[child]]).to(device))
 		accs.append(test(r1, graph, hvs, vocab, device))
 
 
@@ -103,21 +101,14 @@ if __name__ == "__main__":
 	
 	hvs = torchhd.HRRTensor.random(len(vocab), d, device="cuda:0")
 	
-	model = train(graphs, hvs, vocab, d=d, epochs=1)
+	model = train(graphs, hvs, vocab, d=d, device="cuda:0")
 
-	test(model, filepath, hvs)
+	# test(model, graphs, hvs, vocab, "cuda:0")
 
-
-
-	s = """(c / choose-01
-          :ARG1 (c2 / concept
-                :quant 100
-                :mod (i / innovate-01)))"""
 	s = """(c / choose-01
           :ARG1 (c2 / concept 
                 :quant 100
                 :ARG1-of (i / innovate-01))
-          :li 2
           :purpose (e / encourage-01
                 :ARG0 c2
                 :ARG1 (p / person
